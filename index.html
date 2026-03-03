@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reserve Flow Analytics | Track Record</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --teal: #2A9D8F;
+    --red: #E63946;
+    --gold: #E9C46A;
+    --dark: #1a1a2e;
+    --text: #2c2c2c;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --bg: #fafafa;
+    --card-bg: #ffffff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .header {
+    background: var(--dark);
+    color: #fff;
+    padding: 32px 0 48px;
+    text-align: center;
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .header .sub {
+    color: #9ca3af;
+    font-size: 14px;
+    margin-top: 4px;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* Summary cards */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: -32px 0 32px;
+    position: relative;
+    z-index: 1;
+  }
+  .card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+  .card .value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--teal);
+  }
+  .card .value-sm {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--teal);
+    line-height: 1.4;
+  }
+  .card .label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  /* Sections */
+  .section {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .section h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  /* Divider headings */
+  .divider {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin: 36px 0 20px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Charts */
+  .chart-wrap {
+    position: relative;
+    height: 320px;
+    margin: 8px 0;
+  }
+  .chart-wrap.tall { height: 400px; }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  th, td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  th.num { text-align: right; }
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .pill-s { background: rgba(42,157,143,0.12); color: var(--teal); }
+  .pill-n { background: rgba(233,196,106,0.15); color: #b89a30; }
+  .pill-r { background: rgba(230,57,70,0.12); color: var(--red); }
+  .hit-bar {
+    display: inline-block;
+    height: 8px;
+    border-radius: 4px;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+
+  /* Notes */
+  .note {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-top: 12px;
+    padding: 10px 14px;
+    background: #f9fafb;
+    border-left: 3px solid var(--border);
+    border-radius: 0 4px 4px 0;
+  }
+  .note.top { margin-top: 0; margin-bottom: 16px; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 32px 24px;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* CTA */
+  .cta {
+    background: var(--dark);
+    color: #fff;
+    border-radius: 8px;
+    padding: 32px;
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .cta h2 { color: #fff; border: none; margin-bottom: 8px; }
+  .cta p { color: #9ca3af; margin-bottom: 16px; font-size: 15px; }
+  .cta a {
+    display: inline-block;
+    background: var(--teal);
+    color: #fff;
+    padding: 10px 28px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 15px;
+  }
+  .cta a:hover { opacity: 0.9; }
+
+  /* Live signal banner */
+  .signal-banner {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-left: 4px solid var(--teal);
+  }
+  .signal-banner.bearish { border-left-color: var(--red); }
+  .signal-banner .signal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .signal-banner .signal-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+    padding: 0;
+    border: none;
+  }
+  .signal-banner .signal-date {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .signal-banner .signal-reading {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .signal-banner .signal-detail {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .signal-banner .signal-detail strong {
+    color: var(--text);
+  }
+  .signal-outcome {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .signal-outcome .outcome-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+  }
+  .tab {
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--muted);
+    background: transparent;
+    border: 1px solid var(--border);
+    transition: all 0.15s;
+  }
+  .tab.active {
+    background: var(--dark);
+    color: #fff;
+    border-color: var(--dark);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="container">
+    <h1>Reserve Flow Analytics</h1>
+    <div class="sub">Track Record</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Live signal banner -->
+  <div id="signalBanner"></div>
+
+  <!-- Summary cards -->
+  <div class="cards" id="cards"></div>
+
+  <!-- Purpose + Process -->
+  <div class="section">
+    <h2>What This Is</h2>
+    <p style="margin-bottom:12px">Reserve Flow Analytics tracks where US government money actually goes — every dollar the Treasury spends, collects, and borrows — using Daily Treasury Statement data published by the US Treasury.</p>
+    <p style="margin-bottom:12px">The daily note serves two purposes:</p>
+    <p style="margin-bottom:6px"><strong>Signals</strong> — directional readings with a tested statistical edge. These tell you something actionable: price regime (ES vs its 20-day moving average) and CFTC positioning extremes. The track record for these is below.</p>
+    <p style="margin-bottom:12px"><strong>Analysis</strong> — fiscal flow context that helps you understand the macro environment. The fiscal regime (Supportive / Neutral / Restrictive) describes whether the government is net adding or draining reserves from the private sector. This does not predict equity direction on its own — it explains the liquidity backdrop that other signals operate within.</p>
+    <h2 style="margin-top:20px">How It Works</h2>
+    <p style="margin-bottom:6px"><strong>1. Data</strong> — Treasury fiscal flows are fetched daily from the FiscalData API. CFTC positioning is updated weekly.</p>
+    <p style="margin-bottom:6px"><strong>2. Classification</strong> — The fiscal regime is determined by comparing 5-day vs 20-day average net fiscal injection. The price regime is ES closing price vs its 20-day SMA. COT z-scores flag positioning extremes.</p>
+    <p><strong>3. Signal logging</strong> — Every trading day's readings are logged with the date. Forward returns (5d, 10d, 20d) are computed after the fact against SPX, rates, USD, and VIX. Nothing is backfilled or adjusted — the log is append-only.</p>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- SIGNALS — proven directional edge      -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="divider">Signals — Tested Directional Edge</div>
+
+  <!-- Tech regime -->
+  <div class="section">
+    <h2>Price Regime: ES vs 20-Day SMA</h2>
+    <p class="note top">When ES trades above its 20-day simple moving average, we classify the price regime as <strong>bullish</strong>. Below it, <strong>bearish</strong>. This is the strongest standalone directional signal in the dataset.</p>
+    <table id="techTable"></table>
+  </div>
+
+  <!-- COT positioning -->
+  <div class="section">
+    <h2>COT Positioning Signals</h2>
+    <p class="note top">CFTC Commitment of Traders z-scores flag when speculative positioning reaches extremes. Signals with 60%+ hit rates at 20 days are highlighted.</p>
+    <table id="cotTable"></table>
+  </div>
+
+  <!-- Combined signals chart -->
+  <div class="section">
+    <h2>Combined: Price Regime + Fiscal Flows</h2>
+    <p class="note top">Combining the price regime with the fiscal flow regime. The price regime carries most of the directional signal; the fiscal regime adds context on the macro environment.</p>
+    <div class="chart-wrap"><canvas id="chartCombined"></canvas></div>
+  </div>
+
+  <!-- Recent signals table -->
+  <div class="section">
+    <h2>Recent Signals</h2>
+    <div style="overflow-x:auto;">
+      <table id="signalTable"></table>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- ANALYSIS — context and reference       -->
+  <!-- ═══════════════════════════════════════ -->
+  <div class="divider">Analysis — Fiscal Flow Context</div>
+
+  <!-- Regime timeline -->
+  <div class="section">
+    <h2>Fiscal Regime Timeline &amp; SPX</h2>
+    <p class="note top">The fiscal regime classifies the <em>direction</em> of net government flows to the private sector. <strong>Supportive</strong> means the Treasury is adding reserves to the private sector faster than it is draining them. <strong>Restrictive</strong> means the reverse. This is not a directional equity signal — it describes the liquidity environment that other signals operate within.</p>
+    <div class="chart-wrap tall"><canvas id="chartTimeline"></canvas></div>
+    <p class="note">During this sample period, SPX posted positive average forward returns under all three fiscal regimes. With only 7 Supportive observations and a dominant uptrend throughout, the fiscal regime has not demonstrated a standalone edge for equity direction. Its value is in describing the flow environment — whether reserves are being added or drained — which affects the conditions for other signals.</p>
+  </div>
+
+  <!-- Regime returns -->
+  <div class="section">
+    <h2>Average SPX Returns by Fiscal Regime</h2>
+    <div class="tabs" id="regimeTabs">
+      <div class="tab active" data-window="5d">5-Day</div>
+      <div class="tab" data-window="10d">10-Day</div>
+      <div class="tab" data-window="20d">20-Day</div>
+    </div>
+    <div class="chart-wrap"><canvas id="chartRegimeReturns"></canvas></div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <h2>Get the Daily Note</h2>
+    <p>Daily fiscal flow analysis, price regime signals, COT positioning alerts, institutional-grade charts, and fresh ES price levels.</p>
+    <a href="#">Subscribe on Substack</a>
+  </div>
+
+</div>
+
+<div class="footer">
+  Reserve Flow Analytics. Source: US Treasury DTS via FiscalData API, CFTC COT reports.<br>
+  This page is for informational purposes only and does not constitute investment advice.<br>
+  Past signal performance does not guarantee future results.
+</div>
+
+<script>
+// ── Data loading ──
+async function loadData() {
+  const paths = ['signal_returns.json', '../data/signal_returns.json', 'data/signal_returns.json'];
+  for (const p of paths) {
+    try {
+      const res = await fetch(p);
+      if (res.ok) return res.json();
+    } catch(e) {}
+  }
+  throw new Error('Could not load signal_returns.json');
+}
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDate(iso) {
+  const [y, m] = iso.split('-');
+  return `${MONTHS[parseInt(m,10)-1]} ${y}`;
+}
+
+loadData().then(data => {
+  const summary = data.summary;
+  const signals = data.signals;
+  renderSignalBanner(signals);
+  renderCards(summary, signals);
+  renderTechTable(summary);
+  renderCOTTable(summary);
+  renderCombinedChart(summary);
+  renderSignalTable(signals);
+  renderTimeline(signals);
+  renderRegimeReturns(summary, '5d');
+
+  document.getElementById('regimeTabs').addEventListener('click', e => {
+    const tab = e.target.closest('.tab');
+    if (!tab) return;
+    document.querySelectorAll('#regimeTabs .tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    renderRegimeReturns(summary, tab.dataset.window);
+  });
+}).catch(err => {
+  document.getElementById('cards').innerHTML = `<div class="card"><div class="value" style="font-size:16px;color:var(--red)">Error loading data</div><div class="label">${err.message}</div></div>`;
+});
+
+// ── Signal banner ──
+function renderSignalBanner(signals) {
+  const latest = signals[signals.length - 1];
+  const isBullish = latest.tech_regime === 'bullish';
+  const regime = isBullish ? 'Bullish' : 'Bearish';
+  const regimeClass = isBullish ? '' : ' bearish';
+
+  // Collect active COT extremes
+  const cotFields = [
+    { key: 'cot_sp500_signal', label: 'SP500' },
+    { key: 'cot_10y_signal', label: '10Y' },
+    { key: 'cot_2y_signal', label: '2Y' },
+    { key: 'cot_usd_signal', label: 'USD' },
+    { key: 'cot_vix_signal', label: 'VIX' },
+  ];
+  const extremes = cotFields
+    .filter(f => {
+      const v = latest[f.key];
+      return v && (v.includes('Extreme') || v.includes('Elevated'));
+    })
+    .map(f => `${f.label}: ${latest[f.key]}`);
+
+  // Find most recent signal that has a 5d return (to show outcome)
+  let lastScored = null;
+  for (let i = signals.length - 1; i >= 0; i--) {
+    if (signals[i].returns?.spx?.ret_5d != null) {
+      lastScored = signals[i];
+      break;
+    }
+  }
+
+  let outcomeHtml = '';
+  if (lastScored && lastScored.date !== latest.date) {
+    const r5 = lastScored.returns.spx.ret_5d;
+    const r10 = lastScored.returns.spx.ret_10d;
+    const r20 = lastScored.returns.spx.ret_20d;
+    const prevRegime = lastScored.tech_regime === 'bullish' ? 'Bullish' : lastScored.tech_regime === 'bearish' ? 'Bearish' : 'N/A';
+    const expected = lastScored.tech_regime === 'bullish' ? 'higher' : 'lower';
+    const r5Color = r5 != null ? (r5 >= 0 ? 'var(--teal)' : 'var(--red)') : 'var(--muted)';
+    const correct5 = r5 != null ? ((lastScored.tech_regime === 'bullish' && r5 > 0) || (lastScored.tech_regime === 'bearish' && r5 < 0)) : null;
+
+    outcomeHtml = `
+      <div class="signal-outcome">
+        <div class="outcome-label">Last Completed Signal</div>
+        <strong>${lastScored.date}</strong> — Price regime was <strong>${prevRegime}</strong> (expected ${expected}).
+        SPX 5d return: <strong style="color:${r5Color}">${r5 != null ? (r5>0?'+':'') + r5.toFixed(2) + '%' : 'pending'}</strong>${correct5 != null ? (correct5 ? ' &#10003;' : ' &#10007;') : ''}${r10 != null ? `, 10d: <strong style="color:${r10>=0?'var(--teal)':'var(--red)'}">${(r10>0?'+':'') + r10.toFixed(2)}%</strong>` : ''}${r20 != null ? `, 20d: <strong style="color:${r20>=0?'var(--teal)':'var(--red)'}">${(r20>0?'+':'') + r20.toFixed(2)}%</strong>` : ''}
+      </div>`;
+  }
+
+  document.getElementById('signalBanner').innerHTML = `
+    <div class="signal-banner${regimeClass}">
+      <div class="signal-header">
+        <h2>Current Signal</h2>
+        <span class="signal-date">Triggered ${latest.date}</span>
+      </div>
+      <div class="signal-reading">
+        Price Regime: <span class="pill ${isBullish ? 'pill-s' : 'pill-r'}" style="font-size:18px;padding:4px 14px">${regime}</span>
+      </div>
+      <div class="signal-detail">
+        ES is trading <strong>${isBullish ? 'above' : 'below'}</strong> its 20-day moving average.
+        Fiscal regime: <strong>${latest.regime}</strong> (${latest.regime_momentum}).${extremes.length ? '<br>Active COT readings: <strong>' + extremes.join(', ') + '</strong>.' : ''}
+      </div>
+      ${outcomeHtml}
+    </div>`;
+}
+
+// ── Cards ──
+function renderCards(summary, signals) {
+  const range = summary.date_range;
+  const totalDays = summary.total_signals;
+  const techBull = summary.tech_regime_performance.bullish;
+
+  // Best COT signal
+  const cotPerf = summary.cot_performance;
+  let bestCot = { rate: 0, label: '' };
+  for (const [k, v] of Object.entries(cotPerf)) {
+    const hr = v.hit_rate_20d;
+    if (hr && hr.total >= 15 && hr.rate > bestCot.rate) {
+      bestCot = { rate: hr.rate, label: k };
+    }
+  }
+
+  const cards = [
+    { value: totalDays, label: 'Trading Days Tracked' },
+    { value: `${fmtDate(range.first)}<br>${fmtDate(range.last)}`, label: 'Date Range', cls: 'value-sm' },
+    { value: `${techBull.hit_rate_20d.rate}%`, label: 'Price Bullish 20d Hit Rate' },
+    { value: `${bestCot.rate}%`, label: 'Best COT 20d Hit Rate' },
+  ];
+
+  document.getElementById('cards').innerHTML = cards.map(c =>
+    `<div class="card"><div class="${c.cls || 'value'}">${c.value}</div><div class="label">${c.label}</div></div>`
+  ).join('');
+}
+
+// ── Tech regime table ──
+function renderTechTable(summary) {
+  const tp = summary.tech_regime_performance;
+  const rows = Object.entries(tp).map(([regime, data]) => {
+    return `<tr>
+      <td><span class="pill ${regime === 'bullish' ? 'pill-s' : 'pill-r'}">${regime}</span></td>
+      <td class="num">${data.count}</td>
+      <td class="num">${data.avg_spx_5d.toFixed(2)}%</td>
+      <td class="num">${fmtHR(data.hit_rate_5d)}</td>
+      <td class="num">${data.avg_spx_10d.toFixed(2)}%</td>
+      <td class="num">${fmtHR(data.hit_rate_10d)}</td>
+      <td class="num">${data.avg_spx_20d.toFixed(2)}%</td>
+      <td class="num">${fmtHR(data.hit_rate_20d)}</td>
+    </tr>`;
+  });
+
+  document.getElementById('techTable').innerHTML = `
+    <thead><tr>
+      <th>Regime</th><th class="num">n</th>
+      <th class="num">Avg 5d</th><th class="num">Hit 5d</th>
+      <th class="num">Avg 10d</th><th class="num">Hit 10d</th>
+      <th class="num">Avg 20d</th><th class="num">Hit 20d</th>
+    </tr></thead>
+    <tbody>${rows.join('')}</tbody>
+  `;
+}
+
+// ── COT table (only show signals with enough data) ──
+function renderCOTTable(summary) {
+  const cp = summary.cot_performance;
+  const contracts = {};
+  for (const [key, data] of Object.entries(cp)) {
+    const signal = data.signal;
+    let contract;
+    if (key.startsWith('sp500')) contract = 'SP500';
+    else if (key.startsWith('10y')) contract = '10Y UST';
+    else if (key.startsWith('2y')) contract = '2Y UST';
+    else if (key.startsWith('usd')) contract = 'USD';
+    else if (key.startsWith('vix')) contract = 'VIX';
+    else contract = key;
+    if (!contracts[contract]) contracts[contract] = [];
+    contracts[contract].push({ signal, key, ...data });
+  }
+
+  let rows = '';
+  for (const [contract, signals] of Object.entries(contracts)) {
+    for (const s of signals) {
+      if (s.count < 10) continue; // skip tiny samples
+      const hr20 = s.hit_rate_20d;
+      const strong = hr20 && hr20.rate >= 60 && hr20.total >= 15;
+      rows += `<tr${strong ? ' style="background:#f0fdf4"' : ''}>
+        <td>${contract}</td>
+        <td><span class="pill ${s.signal.includes('Short') ? 'pill-r' : s.signal.includes('Long') ? 'pill-s' : 'pill-n'}">${s.signal}</span></td>
+        <td class="num">${s.count}</td>
+        <td class="num">${s.avg_ret_5d.toFixed(2)}%</td>
+        <td class="num">${fmtHR(s.hit_rate_5d)}</td>
+        <td class="num">${s.avg_ret_20d.toFixed(2)}%</td>
+        <td class="num">${fmtHR(s.hit_rate_20d)}</td>
+      </tr>`;
+    }
+  }
+
+  document.getElementById('cotTable').innerHTML = `
+    <thead><tr>
+      <th>Contract</th><th>Signal</th><th class="num">n</th>
+      <th class="num">Avg 5d</th><th class="num">Hit 5d</th>
+      <th class="num">Avg 20d</th><th class="num">Hit 20d</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  `;
+}
+
+// ── Combined fiscal + tech chart ──
+function renderCombinedChart(summary) {
+  const ctx = document.getElementById('chartCombined').getContext('2d');
+  const cp = summary.combined_fiscal_tech;
+  const labels = Object.keys(cp);
+  const colors = labels.map(l => {
+    if (l.includes('Supportive')) return '#2A9D8F';
+    if (l.includes('Restrictive') && l.includes('Bearish')) return '#E63946';
+    if (l.includes('Restrictive') && l.includes('Bullish')) return '#E9C46A';
+    return '#6b7280';
+  });
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels.map(l => `${l} (n=${cp[l].count})`),
+      datasets: [
+        {
+          label: 'Avg 5d Return (%)',
+          data: labels.map(l => cp[l].avg_spx_5d),
+          backgroundColor: colors.map(c => c + '66'),
+          borderColor: colors,
+          borderWidth: 1
+        },
+        {
+          label: 'Avg 20d Return (%)',
+          data: labels.map(l => cp[l].avg_spx_20d),
+          backgroundColor: colors.map(c => c + '33'),
+          borderColor: colors,
+          borderWidth: 1,
+          borderDash: [3, 3]
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' } },
+      scales: {
+        y: {
+          title: { display: true, text: 'Avg SPX Return (%)' },
+          grid: { color: '#f0f0f0' }
+        },
+        x: {
+          grid: { display: false },
+          ticks: { font: { size: 11 } }
+        }
+      }
+    }
+  });
+}
+
+// ── Recent signals table ──
+function renderSignalTable(signals) {
+  const recent = signals.slice(-30).reverse();
+  const rows = recent.map(s => {
+    const ret5 = s.returns?.spx?.ret_5d;
+    const ret10 = s.returns?.spx?.ret_10d;
+    const ret20 = s.returns?.spx?.ret_20d;
+    const spx = s.returns?.spx?.base;
+    const regClass = s.regime === 'Supportive' ? 'pill-s' : s.regime === 'Restrictive' ? 'pill-r' : 'pill-n';
+    const techLabel = s.tech_regime || '—';
+    const techClass = s.tech_regime === 'bullish' ? 'pill-s' : s.tech_regime === 'bearish' ? 'pill-r' : '';
+
+    return `<tr>
+      <td>${s.date}</td>
+      <td>${techClass ? `<span class="pill ${techClass}">${techLabel}</span>` : techLabel}</td>
+      <td><span class="pill ${regClass}">${s.regime}</span></td>
+      <td class="num">${spx ? spx.toFixed(0) : '—'}</td>
+      <td class="num" style="color:${fmtRetColor(ret5)}">${fmtRet(ret5)}</td>
+      <td class="num" style="color:${fmtRetColor(ret10)}">${fmtRet(ret10)}</td>
+      <td class="num" style="color:${fmtRetColor(ret20)}">${fmtRet(ret20)}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('signalTable').innerHTML = `
+    <thead><tr>
+      <th>Date</th><th>Price Regime</th><th>Fiscal Regime</th>
+      <th class="num">SPX</th>
+      <th class="num">5d Fwd</th><th class="num">10d Fwd</th><th class="num">20d Fwd</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  `;
+}
+
+// ── Timeline chart ──
+function renderTimeline(signals) {
+  const ctx = document.getElementById('chartTimeline').getContext('2d');
+  const dates = signals.map(s => s.date);
+  const spx = signals.map(s => s.returns?.spx?.base || null);
+  const spxValid = spx.filter(v => v != null);
+  const spxMin = Math.floor(Math.min(...spxValid) / 100) * 100;
+  const spxMax = Math.ceil(Math.max(...spxValid) / 100) * 100;
+  const regimeColors = signals.map(s => {
+    if (s.regime === 'Supportive') return 'rgba(42,157,143,0.25)';
+    if (s.regime === 'Restrictive') return 'rgba(230,57,70,0.25)';
+    return 'rgba(233,196,106,0.2)';
+  });
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: dates,
+      datasets: [
+        {
+          label: 'SPX Close',
+          type: 'line',
+          data: spx,
+          borderColor: '#2c2c2c',
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHitRadius: 8,
+          yAxisID: 'y',
+          order: 0
+        },
+        {
+          label: 'Regime',
+          data: spx.map(() => spxMax),
+          backgroundColor: regimeColors,
+          borderWidth: 0,
+          yAxisID: 'y',
+          barPercentage: 1.0,
+          categoryPercentage: 1.0,
+          order: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          display: true,
+          labels: {
+            generateLabels: function() {
+              return [
+                { text: 'SPX', fillStyle: '#2c2c2c', strokeStyle: '#2c2c2c', lineWidth: 2 },
+                { text: 'Supportive', fillStyle: 'rgba(42,157,143,0.4)', strokeStyle: 'transparent' },
+                { text: 'Neutral', fillStyle: 'rgba(233,196,106,0.35)', strokeStyle: 'transparent' },
+                { text: 'Restrictive', fillStyle: 'rgba(230,57,70,0.4)', strokeStyle: 'transparent' },
+              ];
+            }
+          }
+        },
+        tooltip: {
+          callbacks: {
+            title: ctx => ctx[0].label,
+            label: ctx => {
+              if (ctx.datasetIndex === 0) return `SPX: ${ctx.parsed.y?.toFixed(2)}`;
+              const sig = signals[ctx.dataIndex];
+              return `Regime: ${sig.regime} (${sig.regime_momentum})`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: {
+            maxTicksLimit: 12,
+            callback: function(val) {
+              const d = this.getLabelForValue(val);
+              return d.slice(0,7);
+            }
+          },
+          grid: { display: false }
+        },
+        y: {
+          position: 'left',
+          min: spxMin,
+          max: spxMax,
+          title: { display: true, text: 'SPX' },
+          grid: { color: '#f0f0f0' }
+        }
+      }
+    }
+  });
+}
+
+// ── Regime returns bar chart ──
+let regimeChart = null;
+function renderRegimeReturns(summary, window) {
+  const ctx = document.getElementById('chartRegimeReturns').getContext('2d');
+  const rp = summary.regime_performance;
+  const regimes = ['Supportive', 'Neutral', 'Restrictive'];
+  const colors = ['#2A9D8F', '#E9C46A', '#E63946'];
+
+  const avgReturns = regimes.map(r => rp[r][`avg_spx_${window}`] || 0);
+  const hitRates = regimes.map(r => {
+    const hr = rp[r][`hit_rate_${window}`];
+    return hr ? hr.rate : null;
+  });
+  const counts = regimes.map(r => rp[r].count);
+
+  if (regimeChart) regimeChart.destroy();
+
+  regimeChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: regimes.map((r, i) => `${r} (n=${counts[i]})`),
+      datasets: [{
+        label: `Avg SPX ${window} Return (%)`,
+        data: avgReturns,
+        backgroundColor: colors.map(c => c + '99'),
+        borderColor: colors,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            afterLabel: (ctx) => {
+              const hr = hitRates[ctx.dataIndex];
+              return hr != null ? `Hit rate: ${hr}%` : 'Hit rate: N/A (no directional signal)';
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          title: { display: true, text: `Avg SPX ${window} Return (%)` },
+          grid: { color: '#f0f0f0' }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ── Helpers ──
+function fmtHR(hr) {
+  if (!hr || hr.rate == null) return '<span style="color:#9ca3af">N/A</span>';
+  const color = hr.rate >= 60 ? '#2A9D8F' : hr.rate >= 45 ? '#E9C46A' : '#E63946';
+  const width = Math.round(hr.rate * 0.6);
+  return `${hr.rate.toFixed(1)}%<span class="hit-bar" style="width:${width}px;background:${color}"></span>`;
+}
+
+function fmtRetColor(ret) {
+  if (ret == null) return 'var(--muted)';
+  return ret >= 0 ? 'var(--teal)' : 'var(--red)';
+}
+
+function fmtRet(ret) {
+  if (ret == null) return '—';
+  return (ret > 0 ? '+' : '') + ret.toFixed(2) + '%';
+}
+</script>
+</body>
+</html>
