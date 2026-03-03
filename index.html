@@ -257,6 +257,61 @@
     margin-bottom: 4px;
   }
 
+  /* Scrollable table wrapper */
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 640px) {
+    .header { padding: 24px 0 40px; }
+    .header h1 { font-size: 22px; }
+    .container { padding: 0 12px; }
+
+    /* Cards: 2 columns */
+    .cards {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: -28px 0 20px;
+    }
+    .card { padding: 14px 10px; }
+    .card .value { font-size: 24px; }
+    .card .value-sm { font-size: 16px; }
+    .card .label { font-size: 11px; }
+
+    /* Sections */
+    .section { padding: 16px 12px; margin-bottom: 16px; }
+    .section h2 { font-size: 16px; }
+
+    /* Signal banner */
+    .signal-banner { padding: 16px 12px; }
+    .signal-banner .signal-header { flex-direction: column; gap: 4px; }
+    .signal-banner .signal-reading { font-size: 18px; }
+    .signal-banner .signal-detail { font-size: 13px; }
+    .signal-outcome { font-size: 13px; }
+
+    /* Charts shorter on mobile */
+    .chart-wrap { height: 240px; }
+    .chart-wrap.tall { height: 280px; }
+
+    /* Tables: smaller text, tighter padding */
+    table { font-size: 12px; }
+    th, td { padding: 8px 6px; }
+    th { font-size: 10px; }
+    .hit-bar { display: none; }
+
+    /* Notes */
+    .note { font-size: 12px; padding: 8px 10px; }
+
+    /* CTA */
+    .cta { padding: 24px 16px; }
+    .cta p { font-size: 13px; }
+
+    /* Divider */
+    .divider { font-size: 11px; margin: 24px 0 14px; }
+  }
+
   /* Tabs */
   .tabs {
     display: flex;
@@ -320,14 +375,14 @@
   <div class="section">
     <h2>Price Regime: ES vs 20-Day SMA</h2>
     <p class="note top">When ES trades above its 20-day simple moving average, we classify the price regime as <strong>bullish</strong>. Below it, <strong>bearish</strong>. This is the strongest standalone directional signal in the dataset.</p>
-    <table id="techTable"></table>
+    <div class="table-scroll"><table id="techTable"></table></div>
   </div>
 
   <!-- COT positioning -->
   <div class="section">
     <h2>COT Positioning Signals</h2>
     <p class="note top">CFTC Commitment of Traders z-scores flag when speculative positioning reaches extremes. Signals with 60%+ hit rates at 20 days are highlighted.</p>
-    <table id="cotTable"></table>
+    <div class="table-scroll"><table id="cotTable"></table></div>
   </div>
 
   <!-- Combined signals chart -->
