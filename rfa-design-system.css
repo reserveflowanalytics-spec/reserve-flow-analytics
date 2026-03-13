@@ -88,6 +88,19 @@
   --text-3xl: 32px;
   --text-4xl: 40px;
   --text-5xl: 56px;
+
+  /* Three-tier semantic aliases (see design_lessons_webby.md)
+     Tier 1 — Hero: one dominant metric per page (40-56px)
+     Tier 2 — Structure: section headings, card values (18-24px)
+     Tier 3 — Body: paragraphs, labels, table cells (13-14px)
+     Constrain usage to these three tiers for clear visual hierarchy. */
+  --type-hero: var(--text-5xl);          /* 56px — gauge score, backtest total */
+  --type-hero-mobile: var(--text-4xl);   /* 40px — hero on small screens */
+  --type-heading: var(--text-xl);        /* 20px — section headings, card values */
+  --type-heading-lg: var(--text-2xl);    /* 24px — prominent card values */
+  --type-body: var(--text-base);         /* 14px — paragraphs, descriptions */
+  --type-body-sm: var(--text-sm);        /* 13px — table cells, secondary text */
+  --type-caption: var(--text-xs);        /* 11px — labels, badges, footnotes */
 }
 
 
