@@ -549,7 +549,9 @@ function renderCOTTable(summary) {
 }
 
 // ── Combined fiscal + tech chart ──
+let combinedChart = null;
 function renderCombinedChart(summary) {
+  if (combinedChart) combinedChart.destroy();
   const ctx = document.getElementById('chartCombined').getContext('2d');
   const cp = summary.combined_fiscal_tech;
   const labels = Object.keys(cp);
@@ -561,7 +563,7 @@ function renderCombinedChart(summary) {
     return cc.muted;
   });
 
-  new Chart(ctx, {
+  combinedChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: labels.map(l => `${l} (n=${cp[l].count})`),
@@ -636,7 +638,9 @@ function renderSignalTable(signals) {
 }
 
 // ── Timeline chart ──
+let timelineChart = null;
 function renderTimeline(signals) {
+  if (timelineChart) timelineChart.destroy();
   const ctx = document.getElementById('chartTimeline').getContext('2d');
   const cc = getChartColors();
   const dates = signals.map(s => s.date);
@@ -650,7 +654,7 @@ function renderTimeline(signals) {
     return cc.yellow + '33';
   });
 
-  new Chart(ctx, {
+  timelineChart = new Chart(ctx, {
     type: 'bar',
     data: {
       labels: dates,
