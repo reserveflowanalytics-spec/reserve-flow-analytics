@@ -47,7 +47,7 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    font-size: var(--type-heading-lg);
+    font-size: var(--text-3xl);
     font-family: var(--font-heading);
     font-weight: 800;
     letter-spacing: -1px;
@@ -55,7 +55,7 @@
   }
   .track-header .subtitle {
     color: #94A3B8;
-    font-size: var(--type-body-sm);
+    font-size: var(--type-body);
     font-family: var(--font-mono);
     position: relative;
   }
@@ -71,13 +71,13 @@
   }
   .cards .card { text-align: center; display: flex; flex-direction: column; justify-content: flex-end; }
   .cards .card .value {
-    font-size: var(--type-heading-lg);
+    font-size: var(--text-3xl);
     font-weight: 700;
     color: var(--accent);
     font-family: var(--font-mono);
   }
   .cards .card .value-sm {
-    font-size: var(--type-heading);
+    font-size: var(--type-heading-lg);
     font-weight: 700;
     color: var(--accent);
     line-height: 1.4;
@@ -220,18 +220,18 @@
   /* ── Mobile ── */
   @media (max-width: 640px) {
     .track-header { padding: var(--sp-6) 0 var(--sp-10); }
-    .track-header h1 { font-size: var(--type-heading); }
+    .track-header h1 { font-size: var(--type-heading-lg); }
     .container { padding: 0 var(--sp-3); }
     .cards { grid-template-columns: repeat(2, 1fr); gap: var(--sp-3); margin: calc(-1 * var(--sp-6)) 0 var(--sp-5); }
     .cards .card { padding: var(--sp-4) var(--sp-3); }
-    .cards .card .value { font-size: var(--type-heading); }
-    .cards .card .value-sm { font-size: var(--type-body); }
+    .cards .card .value { font-size: var(--type-heading-lg); }
+    .cards .card .value-sm { font-size: var(--type-heading); }
     .cards .card .label { font-size: var(--type-caption); }
     .section-card { padding: var(--sp-4) var(--sp-3); margin-bottom: var(--sp-4); }
     .section-card h2 { font-size: var(--type-body); }
     .signal-banner { padding: var(--sp-4) var(--sp-3); }
     .signal-banner .signal-header { flex-direction: column; gap: var(--sp-1); }
-    .signal-banner .signal-reading { font-size: var(--type-heading); }
+    .signal-banner .signal-reading { font-size: var(--type-heading-lg); }
     .signal-banner .signal-detail { font-size: var(--type-body-sm); }
     .signal-outcome { font-size: var(--type-body-sm); }
     .chart-wrap { height: 240px; }
